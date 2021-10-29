@@ -1,7 +1,9 @@
 type Props = {
-    html: string;
-}
+  html: string;
+};
 
-const Preview = ({ html }: Props) => <div dangerouslySetInnerHTML={{ __html: html }} />
+const Preview = ({ html }: Props) => (
+  <div dangerouslySetInnerHTML={{ __html: html }} />
+);
 
 export default Preview;
