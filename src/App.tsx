@@ -6,7 +6,7 @@ import Code from "./components/Code";
 import { svg } from "./test";
 import Preview from "./components/Preview";
 import Header from "./components/Header";
-import Filters from "./components/Filters";
+import Plugins from "./components/Plugins";
 import {
   initialPluginState,
   pluginReducer,
@@ -41,12 +41,14 @@ function App() {
       const result = await highlight.process(code, {
         plugins: stateToConfig(pluginState),
       });
-      setCompressed(result);
+      setCompressed(result.data);
     };
     doit();
   }, [code, pluginState]);
   // const comp = compress(code, { plugins: [] });
   // console.log(comp);
+
+  const currentCode = compressed ?? code;
 
   return (
     <div className="App">
@@ -60,10 +62,14 @@ function App() {
 
           <div className="grid grid-cols-1 lg:grid-cols-4 gap-x-8 gap-y-10">
             <div className="lg:col-span-3">
-              {activeTab === "preview" ? <Preview html={code} /> : null}
+              {activeTab === "preview" ? <Preview html={currentCode} /> : null}
               {activeTab === "code" ? <Code source={compressed} /> : null}
             </div>
-            <Filters pluginState={pluginState} dispatch={dispatch} />
+            <Plugins
+              currentCode={currentCode ?? ""}
+              pluginState={pluginState}
+              dispatch={dispatch}
+            />
           </div>
         </main>
       </div>

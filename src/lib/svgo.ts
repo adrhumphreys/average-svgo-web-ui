@@ -44,7 +44,7 @@ const createDimensionsExtractor = () => {
 export const compress = (svgInput: string, settings: any) => {
   // setup plugin list
   const floatPrecision = Number(settings.floatPrecision);
-  const plugins = settings.plugins;
+  const plugins = settings?.plugins ?? [];
 
   // for (const [name, active] of Object.entries(settings.plugins)) {
   //   if (!active) continue;

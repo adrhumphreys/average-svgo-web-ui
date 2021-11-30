@@ -19,6 +19,7 @@ export type Action = {
   type: string;
   pluginId: string;
   paramId?: string;
+  value?: any;
 };
 
 export const initialPluginState = {
@@ -55,7 +56,10 @@ export const stateToConfig = (pluginState: State) => {
 
 export const pluginReducer: Reducer<State, Action> = (draft, action) => {
   const pluginId = action.pluginId;
+  const paramId = action?.paramId;
   const plugins = draft.enabledPlugins;
+  const plugin = getPlugin(plugins, pluginId);
+
   switch (action.type) {
     case "add_plugin":
       if (pluginEnabled(plugins, pluginId)) {
@@ -80,15 +84,12 @@ export const pluginReducer: Reducer<State, Action> = (draft, action) => {
       });
       break;
     case "toggle_param":
-      const paramId = action?.paramId;
       const isEnabled = draft.enabledPlugins.some(
         (p) =>
           p.id === pluginId && p?.params?.some((param) => param.id === paramId)
       );
 
       if (isEnabled) {
-        const plugin = getPlugin(plugins, pluginId);
-
         if (plugin?.params) {
           plugin.params = plugin?.params?.filter(
             (param) => param.id !== paramId
@@ -96,14 +97,35 @@ export const pluginReducer: Reducer<State, Action> = (draft, action) => {
         }
       } else {
         // Ensure the plugin is enabled
-        pluginReducer(draft, { type: "add_plugin", pluginId });
-        const plugin = getPlugin(plugins, pluginId);
-        plugin!.params.push({
-          id: paramId!,
-          value: true,
-        });
+        pluginReducer(draft, { ...action, type: "set_param", value: true });
+      }
+      break;
+    case "toggle_true_param":
+      if (!plugin) {
+        return;
       }
 
+      let param = plugin.params.find((param) => param.id === paramId);
+      let paramEnabled = param?.value === true;
+
+      pluginReducer(draft, {
+        ...action,
+        type: "set_param",
+        value: !paramEnabled,
+      });
+
+      break;
+    case "set_param":
+      if (!plugin) {
+        return;
+      }
+
+      pluginReducer(draft, { type: "add_plugin", pluginId });
+      plugin.params = plugin?.params?.filter((param) => param.id !== paramId);
+      plugin!.params.push({
+        id: paramId!,
+        value: action.value,
+      });
       break;
   }
 };

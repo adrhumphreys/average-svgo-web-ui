@@ -18,7 +18,7 @@ const Code = ({ source }: Props) => {
 
     const doit = async () => {
       const highlight: Remote<Highlight> = wrap(new Worker());
-      const result = await highlight.process(source.data);
+      const result = await highlight.process(source);
       setCode(result);
     };
     doit();
